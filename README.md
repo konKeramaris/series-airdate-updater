@@ -1,8 +1,7 @@
 # series-airtime-updater
 
 # Todo
-* add parametrs on getIds for series filename and lambda function
-* Cluodformation for Lambda and SES
+* Cloudformation for Cloudwatch Events
 
 
 ## How to deploy (SAM)
@@ -15,7 +14,7 @@ p37
 sam build
 
 # Deploy Code on existing Function
-sam deploy --stack-name airdate --s3-bucket kostas-test-bucket-eu-west-1 --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM
+sam deploy --stack-name airdate --s3-bucket kostas-test-bucket-eu-west-1 --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides Email=email@example.com
 
 # Update Series List
 python3 update-series-list/update-series-list.py -l airdate-update-function

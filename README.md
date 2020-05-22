@@ -1,4 +1,4 @@
-# series-airtime-updater
+# Series Airtime Updater
 
 # Todo
 * Cloudformation for Cloudwatch Events

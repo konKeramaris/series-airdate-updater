@@ -1,18 +1,20 @@
 from requests import get
-import boto3
-import argparse
+from boto3 import client
+from argparse import ArgumentParser
 import os
-client = boto3.client('lambda')
+client = client('lambda')
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Update Lambda Environment Variables')
-    parser.add_argument('-f', '--filename', nargs='+', type=str,
-                        help='Provide the filename of where the series names are stored', default='myseries.txt')
-    parser.add_argument('-l', '--lambdaname', type=str,
-                        help='Provide the name of the lamdba function', default='test-airtime')
-    parser.add_argument('-u', '--baseurl', type=str,
-                        help='Provide the name of the lamdba function (def http://api.tvmaze.com/singlesearch/shows?q=)', default='http://api.tvmaze.com/singlesearch/shows?q=')
+    parser = ArgumentParser(description='Update Lambda Environment Variables')
+    parser.add_argument('-f', '--filename', nargs='+', type=str, default='myseries.txt',
+                        help='Provide the filename of where the series names are stored')
+    parser.add_argument('-l', '--lambdaname', type=str,  default='test-airtime',
+                        help='Provide the name of the lamdba function')
+    parser.add_argument('-u', '--baseurl', type=str, default='http://api.tvmaze.com/singlesearch/shows?q=',
+                        help='Provide the name of the lamdba function (def http://api.tvmaze.com/singlesearch/shows?q=)')
+    parser.add_argument('-g', '--getserieslist',  action='store_true',
+                        help='Select if you want to retrieve the series list from the Lambda Environment Variables (This choise will overwrite your existing file unless you provide a different filename)')
     return parser.parse_args()
 
 def readSeries(filename):
@@ -30,12 +32,17 @@ def updateFunction(series,ids,lambdaName):
 if __name__ == "__main__":
     args = parse_args()
     print(vars(args))
+    
+    if args.getserieslist:
+        print ('Retrieving series list...') 
+        #Implement get series list function
+    else:
+        print ('Updating series list...')
+        series = readSeries(args.filename)
+        print ('Series: '+str(series))
 
-    series = readSeries(args.filename)
-    print ('Series: '+str(series))
+        ids = getSeriesIds(series, args.baseurl)
+        print ('IDs: '+str(ids))
 
-    ids = getSeriesIds(series, args.baseurl)
-    print ('IDs: '+str(ids))
-
-    response = updateFunction(series, ids, args.lambdaname)
-    print ('Response Code: ' + response)
+        response = updateFunction(series, ids, args.lambdaname)
+        print ('Response Code: ' + response)

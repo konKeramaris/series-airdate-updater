@@ -1,8 +1,8 @@
 from requests import get
-from boto3 import client
+import boto3
 from argparse import ArgumentParser
 import os
-client = client('lambda')
+client = boto3.client('lambda')
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def parse_args():

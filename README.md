@@ -5,6 +5,11 @@
 * Ability to retrieve existing series list from Lambda Environment Variables on update-series-list.py
 * Investigate Integration with Calendar
 
+## Prerequisites
+* Install and configure `aws-cli` and `sam-cli`
+* Working `python3.7` environment
+* Set up email on Amazon SES
+
 ## How to deploy (SAM)
 #### Connect to python3.7 virtual Environment
 ```

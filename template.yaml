@@ -10,7 +10,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
-      Description: String
+      Description: Lambda Function to provide updates on the series upcoming airdates
       Environment:
         Variables: 
           BASE_URL : http://api.tvmaze.com

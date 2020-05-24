@@ -24,11 +24,6 @@ The Solution is based around the AWS Lambda functions that invokes the API and r
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
 
 ## How to deploy (SAM)
-#### Connect to python3.7 virtual Environment
-``` bash
-# source ~/Documents/python/python37/bin/activate
-p37
-```
 #### Install Dependencies
 ``` bash
 sam build
@@ -40,18 +35,22 @@ sam deploy --stack-name airdate --s3-bucket kostas-test-bucket-eu-west-1 --regio
 ```
 
 #### Update Series List
+First install the necessary requirements for the `update-series-list.py` script by doing:
 ``` bash
-python3 update-series-list/update-series-list.py -l airdate-update-function
+pip3 install -r update-series-list/requirements.txt
 ```
 
 
-## How to deploy (Cloudformation)
-#### Install Dependencies
+Then, you can update the Lambda Environment variables by providing the appropriate input parameters.
 ``` bash
-cd lambda
-pip3 install --target ./package requests tabulate datetime --system
+python3 update-series-list/update-series-list.py --lambdaname <function-name> --filename <txt-file-name>
 ```
-#### Deploy Code on existing Function
+where `<txt-file-name>` is a text file that has your series titles (one per line).
+
+
+You can also retrieve the current lambda Series List and save it on a file by doing:
 ``` bash
-cd package/ && zip -r9 function.zip . && cd .. && zip -g function.zip lambda_function.py && aws lambda update-function-code --function-name test-airtime --zip-file fileb://function.zip
+python3 update-series-list/update-series-list.py --getserieslist --filename <txt-file-name>
 ```
+
+Note: When redeploying, depending on the changes of the Lambda fuction in AWS, you might need to run again `update-series-list/update-series-list.py` to set again the Series list in the Lambda Environment Variables.

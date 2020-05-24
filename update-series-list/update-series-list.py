@@ -9,7 +9,7 @@ def parse_args():
     parser = ArgumentParser(description='Update Lambda Environment Variables')
     parser.add_argument('-f', '--filename', type=str, default='myseries.txt',
                         help='Provide the filename of where the series names are stored')
-    parser.add_argument('-l', '--lambdaname', type=str,  default='test-airtime',
+    parser.add_argument('-l', '--lambdaname', type=str,  default='airdate-update-function',
                         help='Provide the name of the lamdba function')
     parser.add_argument('-u', '--baseurl', type=str, default='http://api.tvmaze.com/singlesearch/shows?q=',
                         help='Provide the name of the lamdba function (def http://api.tvmaze.com/singlesearch/shows?q=)')

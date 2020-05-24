@@ -2,7 +2,7 @@
 
 This Solution utilizes the open TVmaze API to provide weekly email updates on the air-dates of your ongoing TV series. 
 
-## Architecture
+# Architecture
 The Solution is based around the AWS Lambda functions that invokes the API and retrieves the latest information about the series air-dates. The function then uses the Amazon SES service to send an update email. CloudWatch Events is used to schedule the triggering of the Lambda function. Lastly the update of the list of series is handled by a python script located in `update-series-list/`.
 
 ![architecture](imgs/architecture.png)
@@ -26,7 +26,7 @@ The Solution sends you an email with information similar to the following table:
 * Improve README
 * Investigate Integration with Calendar
 
-## Prerequisites
+# Prerequisites
 * AWS Account
 * Install and configure `aws-cli` and `sam-cli`
 * Working `python3.7` environment
@@ -34,18 +34,18 @@ The Solution sends you an email with information similar to the following table:
   * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
 
-## How to deploy (SAM)
-#### Install Dependencies
+# How to deploy (SAM)
+### Install Dependencies
 ``` bash
 sam build
 ```
 
-#### Deploy the Infrastructure & Code
+### Deploy the Infrastructure & Code
 ``` bash
 sam deploy --stack-name airdate --s3-bucket kostas-test-bucket-eu-west-1 --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides Email=email@example.com
 ```
 
-#### Update Series List
+### Update Series List
 First install the necessary requirements for the `update-series-list.py` script by doing:
 ``` bash
 pip3 install -r update-series-list/requirements.txt
@@ -66,3 +66,14 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 ```
 
 **Note:** When redeploying, depending on the changes of the Lambda function in AWS, you might need to run again `update-series-list/update-series-list.py` to set the series list in the Lambda Environment Variables.
+
+# License
+
+Licensed under the Apache License, Version 2.0 ([LICENSE](LICENSE)
+or http://www.apache.org/licenses/LICENSE-2.0).
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+licensed as above, without any additional terms or conditions.

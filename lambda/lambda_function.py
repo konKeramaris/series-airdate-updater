@@ -1,4 +1,3 @@
-import json
 import boto3
 import os
 from requests import get
@@ -12,21 +11,42 @@ SRC_EMAIL   = os.environ['SRC_EMAIL']
 DST_EMAIL   = os.environ['SRC_EMAIL']
 BASE_URL    = os.environ['BASE_URL']
 
-nextDates = []; nextEp = []; prevDates = []; prevEp=[]
+def getEpisodesFromShowInfo(showid, key, episodes, dates):
+    show = get(BASE_URL+'/shows/'+showid)
+    if key in show.json()['_links']:
+        epidodeUrl = show.json()['_links'][key]['href']
+        response = get(epidodeUrl)
+        episodes.append('s'+str(response.json()['season'])+'e'+str(response.json()['number']))
+        dates.append(response.json()['airdate'])
+    else:
+        episodes.append('No Data')
+        dates.append('No Data')
+    return episodes, dates
+
+def getEpisodesFromEpisodeList(data, index, episodes, dates):
+    if index == 0:
+        episodes.append('No Data')
+        dates.append('No Data')
+    else:
+        episodes.append('s'+str(data[index]['season'])+'e'+str(data[index]['number']))
+        dates.append(data[index]['airdate'])
+    return episodes,dates
+
+nextDates = []; nextEp = []; prevDates = []; prevEp = []
 for i in ids:
     response = get(BASE_URL+'/shows/'+i+'/episodes')
-    if response.json()[-1]['airdate'] > str(datetime.now().date()):
-        # If episode is later than the current day
-        # then show the last previous episode and the upcoming episode
-        prevEp.append('s'+str(response.json()[-2]['season'])+'e'+str(response.json()[-2]['number']))
-        prevDates.append(response.json()[-2]['airdate'])
-        nextEp.append('s'+str(response.json()[-1]['season'])+'e'+str(response.json()[-1]['number']))
-        nextDates.append(response.json()[-1]['airdate'])
+    if response.json()[-1]['airdate'] =='':
+        prevEp, prevDates = getEpisodesFromShowInfo(i, 'previousepisode', prevEp, prevDates)
+        nextEp, nextDates = getEpisodesFromShowInfo(i, 'nextepisode', nextEp, nextDates)
     else:
-        prevEp.append('s'+str(response.json()[-1]['season'])+'e'+str(response.json()[-1]['number']))
-        prevDates.append(response.json()[-1]['airdate'])
-        nextDates.append('No Data')
-        nextEp.append('No Data')
+        if response.json()[-1]['airdate'] > str(datetime.now().date()):
+            # If episode is later than the current day
+            # then show the last previous episode and the upcoming episode
+            prevEp, prevDates = getEpisodesFromEpisodeList(response.json(), -2, prevEp, prevDates)
+            nextEp, nextDates = getEpisodesFromEpisodeList(response.json(), -1, nextEp, nextDates)
+        else:
+            prevEp, prevDates = getEpisodesFromEpisodeList(response.json(), -1, prevEp, prevDates)
+            nextEp, nextDates = getEpisodesFromEpisodeList(response.json(), 0, nextEp, nextDates)
 
 # Sort, Combine and Transpose List
 nextDates, series, nextEp, prevDates, prevEp = zip(*sorted(zip(nextDates, series, nextEp, prevDates, prevEp)))

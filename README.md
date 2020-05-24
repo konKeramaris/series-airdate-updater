@@ -63,7 +63,6 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 * Add logging on Lambda
 * Verify CloudWatch events
 * Verify free-tier
-* Resolve "empty airdate" issue
 * Investigate Integration with Calendar
 
 # License

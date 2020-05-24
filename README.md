@@ -13,8 +13,8 @@
 * Install and configure `aws-cli` and `sam-cli`
 * Working `python3.7` environment
 * Set up email on Amazon SES (Cannot be done via Cloudformation)
-  * [Amazon SES Quick Start] (https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
-  * [Setting up Email with Amazon SES] (https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
+  * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
+  * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
 
 ## How to deploy (SAM)
 #### Connect to python3.7 virtual Environment

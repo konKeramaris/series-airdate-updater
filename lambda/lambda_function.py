@@ -39,6 +39,5 @@ def lambda_handler(event, context):
             'Body': {'Html': {'Charset': 'UTF-8', 'Data': tabulate(transposedList, headers=['Name', 'Previous Ep.','Airtime','Next Ep.','Airtime'], tablefmt="html"),}},
             'Subject': { 'Charset': 'UTF-8', 'Data': 'Your Weekly Series Airtime Updater',},
         },
-        Source=SRC_EMAIL,
-    )
+        Source=SRC_EMAIL)
     return response['ResponseMetadata']['HTTPStatusCode']

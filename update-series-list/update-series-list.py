@@ -7,7 +7,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 def parse_args():
     parser = ArgumentParser(description='Update Lambda Environment Variables')
-    parser.add_argument('-f', '--filename', nargs='+', type=str, default='myseries.txt',
+    parser.add_argument('-f', '--filename', type=str, default='myseries.txt',
                         help='Provide the filename of where the series names are stored')
     parser.add_argument('-l', '--lambdaname', type=str,  default='test-airtime',
                         help='Provide the name of the lamdba function')
@@ -28,21 +28,28 @@ def updateFunction(series,ids,lambdaName):
     env['Variables']['SERIES_LIST'] = ','.join(series)
     env['Variables']['IDS_LIST'] = ','.join(ids)
     return str(client.update_function_configuration(FunctionName = lambdaName, Environment = env)['ResponseMetadata']['HTTPStatusCode'])
-    
+
+def saveSeriestoFile(lambdaName,filename):
+    series = client.get_function_configuration(FunctionName = lambdaName)['Environment']['Variables']['SERIES_LIST'].split(',')
+    with open(os.path.join(__location__, filename), 'w') as f:
+        for item in series:
+            f.write("%s\n" % item)
+    print ('Saved list to: '+filename)
+
 if __name__ == "__main__":
     args = parse_args()
     print(vars(args))
     
     if args.getserieslist:
         print ('Retrieving series list...') 
-        #Implement get series list function
+        saveSeriestoFile(args.lambdaname, args.filename)
     else:
-        print ('Updating series list...')
+        print ('Updating Lambda environment Variables from: '+ args.filename)
         series = readSeries(args.filename)
-        print ('Series: '+str(series))
+        print ('Series \t: '+str(series))
 
         ids = getSeriesIds(series, args.baseurl)
-        print ('IDs: '+str(ids))
+        print ('IDs \t: '+str(ids))
 
         response = updateFunction(series, ids, args.lambdaname)
         print ('Response Code: ' + response)

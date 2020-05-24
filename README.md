@@ -42,7 +42,7 @@ sam build
 
 ### Deploy the Infrastructure & Code
 ``` bash
-sam deploy --stack-name airdate --s3-bucket kostas-test-bucket-eu-west-1 --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides Email=email@example.com
+sam deploy --stack-name series-airdate-updater --s3-bucket <s3-bucket-name> --region <aws-region> --parameter-overrides Email=email@example.com --capabilities CAPABILITY_NAMED_IAM
 ```
 
 ### Update Series List

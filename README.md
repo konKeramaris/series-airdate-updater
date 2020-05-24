@@ -1,5 +1,12 @@
 # Series Airdate Updater
 
+This Solution utilizes the open TVmaze API to provide weekly email updates on the airdates of your ongoing tv series. 
+
+## Architecture
+The Solution is based around the AWS Lambda functions that invokes the API and retrieves the latest information about the series airdates. The function then uses the Amazon SES service to send an update email. Cloudwatch Events is used to schedule the triggering of the Lambda function. Lastly the update of the list of series is handled by a python script located in `update-series-list/`.
+
+![architecture](imgs/architecture.png)
+
 # Todo
 * Add logging on Lambda
 * Verify Cloudwatch events

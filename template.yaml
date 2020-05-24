@@ -6,7 +6,7 @@ Parameters:
     Description: Provide the email that the updates will be send to 
 
 Resources:
-  MyFunction:
+  AirdateLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
@@ -18,20 +18,24 @@ Resources:
           DST_EMAIL : !Ref Email
           SERIES_LIST : To be filled later
           IDS_LIST : To be filled later
-      #EventInvokeConfig: EventInvokeConfiguration
-      #Events: EventSource
+      Events:
+        CloudwatchEvent:
+          Type: Schedule
+          Properties:
+            Name: series-airdate-weekly-update
+            Description: Weekly Lambda Trigger
+            Schedule: cron(0 10 ? * FRI *)
+            Enabled: True
       FunctionName: airdate-update-function
       Handler: lambda_function.lambda_handler
       MemorySize: 128
       Policies:
-        - AWSLambdaExecute
+        #- AWSLambdaExecute
         - Version: '2012-10-17' 
           Statement:
             - Effect: Allow
               Action:
-                - ses:*
-                - s3:GetObjectACL
-              Resource: '*' #'arn:aws:s3:::my-bucket/*'
+                - ses:SendEmail
+              Resource: '*'
       Runtime: python3.7
       Timeout: 3
-

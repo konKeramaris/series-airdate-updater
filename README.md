@@ -30,6 +30,7 @@ The Solution sends you an email with information similar to the following table:
 * AWS Account
 * Install and configure `aws-cli` and `sam-cli`
 * Working `python3.7` environment
+* Create S3 bucket name to store the build artifacts
 * Set up email on Amazon SES (Cannot be done via CloudFormation)
   * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
@@ -42,8 +43,10 @@ sam build
 
 ### Deploy the Infrastructure & Code
 ``` bash
-sam deploy --stack-name series-airdate-updater --s3-bucket <s3-bucket-name> --region <aws-region> --parameter-overrides Email=email@example.com --capabilities CAPABILITY_NAMED_IAM
+sam deploy --stack-name series-airdate-updater --s3-bucket <s3-bucket-name> --region <aws-region> --parameter-overrides Email=<email@example.com> --capabilities CAPABILITY_NAMED_IAM
 ```
+where: `<s3-bucket-name>` is the bucket you have previously created, `<aws-region>` is the region of AWS that you are deployin to (eg. eu-west-1) and `<email@example.com>` is the email that you have set up on SES
+
 
 ### Update Series List
 First install the necessary requirements for the `update-series-list.py` script by doing:
@@ -55,12 +58,9 @@ Then, you can update the Lambda Environment variables by providing the appropria
 ``` bash
 python3 update-series-list/update-series-list.py --lambdaname <function-name> --filename <txt-file-name>
 ```
-where `<txt-file-name>` is a text file that has your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the Lambda Environment variables with the appropriate values. You can run again this script if you want to add/remove more series.
-
-
+where `<function-name>` is the name of the Lambda function you have previously created and `<txt-file-name>` is a text file that has your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the Lambda Environment variables with the appropriate values. You can run again this script if you want to add/remove more series.
 
 You can also retrieve the current Lambda series list and save it on a file by doing:
-
 ``` bash
 python3 update-series-list/update-series-list.py --getserieslist --filename <txt-file-name>
 ```
@@ -68,7 +68,6 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 **Note:** When redeploying, depending on the changes of the Lambda function in AWS, you might need to run again `update-series-list/update-series-list.py` to set the series list in the Lambda Environment Variables.
 
 # License
-
 Licensed under the Apache License, Version 2.0 ([LICENSE](LICENSE)
 or http://www.apache.org/licenses/LICENSE-2.0).
 

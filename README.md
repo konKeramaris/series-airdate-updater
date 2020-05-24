@@ -1,6 +1,6 @@
 # Series Airdate Updater
 
-This Solution utilizes the open TVmaze API to provide weekly email updates on the air-dates of your ongoing TV series. 
+This Solution utilizes the open TVmaze API to provide weekly email updates on the air-dates of your ongoing TV series. The solution is 100% within the free-tier of AWS usage so will lead to no costs *(to be confirmed)*.
 
 # Architecture
 The Solution is based around the AWS Lambda functions that invokes the API and retrieves the latest information about the series air-dates. The function then uses the Amazon SES service to send an update email. CloudWatch Events is used to schedule the triggering of the Lambda function. Lastly the update of the list of series is handled by a python script located in `update-series-list/`.
@@ -17,20 +17,11 @@ The Solution sends you an email with information similar to the following table:
 | Atlanta        | s2e11        | 2018-05-10 | No Data  | No Data    |
 | Westworld      | s3e8         | 2020-05-03 | No Data  | No Data    |
 
-# Todo
-
-* Add logging on Lambda
-* Verify CloudWatch events
-* Verify free-tier
-* Resolve "The-Boys" issue
-* Improve README
-* Investigate Integration with Calendar
-
 # Prerequisites
 * AWS Account
 * Install and configure `aws-cli` and `sam-cli`
 * Working `python3.7` environment
-* Create S3 bucket name to store the build artifacts
+* Create S3 Bucket to store the build artifacts
 * Set up email on Amazon SES (Cannot be done via CloudFormation)
   * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
@@ -45,7 +36,7 @@ sam build
 ``` bash
 sam deploy --stack-name series-airdate-updater --s3-bucket <s3-bucket-name> --region <aws-region> --parameter-overrides Email=<email@example.com> --capabilities CAPABILITY_NAMED_IAM
 ```
-where: `<s3-bucket-name>` is the bucket you have previously created, `<aws-region>` is the region of AWS that you are deployin to (eg. eu-west-1) and `<email@example.com>` is the email that you have set up on SES
+where: `<s3-bucket-name>` is the bucket you have previously created, `<aws-region>` is the region of AWS that you are deploying to (eg. eu-west-1) and `<email@example.com>` is the email that you have set up on SES
 
 
 ### Update Series List
@@ -66,6 +57,14 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 ```
 
 **Note:** When redeploying, depending on the changes of the Lambda function in AWS, you might need to run again `update-series-list/update-series-list.py` to set the series list in the Lambda Environment Variables.
+
+# Todo List
+
+* Add logging on Lambda
+* Verify CloudWatch events
+* Verify free-tier
+* Resolve "empty airdate" issue
+* Investigate Integration with Calendar
 
 # License
 Licensed under the Apache License, Version 2.0 ([LICENSE](LICENSE)

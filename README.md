@@ -59,7 +59,9 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 **Note:** When redeploying, depending on the changes of the Lambda function in AWS, you might need to run again `update-series-list/update-series-list.py` to set the series list in the Lambda Environment Variables.
 
 # Todo List
-
+* add comments on code
+* create cloudformation-init.yaml to create SSM Parameter Store and S3 bucket
+* Move series list from lambda Environment Variable to SSM Parameter
 * Add logging on Lambda
 * Verify CloudWatch events
 * Verify free-tier

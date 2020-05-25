@@ -19,14 +19,14 @@ def getEpisodesFromShowInfo(showid, key, episodes, dates):
         episodes.append('s'+str(response.json()['season'])+'e'+str(response.json()['number']))
         dates.append(response.json()['airdate'])
     else:
-        episodes.append('No Data')
-        dates.append('No Data')
+        episodes.append('N/A')
+        dates.append('N/A')
     return episodes, dates
 
 def getEpisodesFromEpisodeList(data, index, episodes, dates):
     if index == 0:
-        episodes.append('No Data')
-        dates.append('No Data')
+        episodes.append('N/A')
+        dates.append('N/A')
     else:
         episodes.append('s'+str(data[index]['season'])+'e'+str(data[index]['number']))
         dates.append(data[index]['airdate'])
@@ -42,8 +42,13 @@ for i in ids:
         if response.json()[-1]['airdate'] > str(datetime.now().date()):
             # If episode is later than the current day
             # then show the last previous episode and the upcoming episode
-            prevEp, prevDates = getEpisodesFromEpisodeList(response.json(), -2, prevEp, prevDates)
-            nextEp, nextDates = getEpisodesFromEpisodeList(response.json(), -1, nextEp, nextDates)
+            print (response.json())
+            pointer = -1 
+            while response.json()[pointer]['airdate'] > str(datetime.now().date()):
+                pointer -=1
+            print (pointer)
+            prevEp, prevDates = getEpisodesFromEpisodeList(response.json(), pointer, prevEp, prevDates)
+            nextEp, nextDates = getEpisodesFromEpisodeList(response.json(), pointer+1, nextEp, nextDates)
         else:
             prevEp, prevDates = getEpisodesFromEpisodeList(response.json(), -1, prevEp, prevDates)
             nextEp, nextDates = getEpisodesFromEpisodeList(response.json(), 0, nextEp, nextDates)
@@ -56,7 +61,7 @@ def lambda_handler(event, context):
     response = client.send_email(
         Destination={'ToAddresses': [DST_EMAIL],},
         Message={
-            'Body': {'Html': {'Charset': 'UTF-8', 'Data': tabulate(transposedList, headers=['Name', 'Previous Ep.','Airtime','Next Ep.','Airtime'], tablefmt="html"),}},
+            'Body': {'Html': {'Charset': 'UTF-8', 'Data': tabulate(transposedList, headers=['Name', 'Prev. Ep.','Airtime','Next Ep.','Airtime'], colalign=("left","center","left","center","left"), tablefmt="html"),}},
             'Subject': { 'Charset': 'UTF-8', 'Data': 'Your Weekly Series Airtime Updater',},
         },
         Source=SRC_EMAIL)

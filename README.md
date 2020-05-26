@@ -51,9 +51,9 @@ pip3 install -r update-series-list/requirements.txt
 
 Then, you can update the SSM Parameters by providing the appropriate input parameters.
 ``` bash
-python3 update-series-list/update-series-list.py --lambdaname <function-name> --filename <txt-file-name>
+python3 update-series-list/update-series-list.py --filename <txt-file-name>
 ```
-where `<function-name>` is the name of the Lambda function you have previously created and `<txt-file-name>` is a text file that has your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the SSM Parameters with the appropriate values. You can run again this script if you want to add/remove more series.
+where `<txt-file-name>` is a text file that has written your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the SSM Parameters with the appropriate values. You can run again this script if you want to add/remove more series.
 
 You can also retrieve the current Lambda series list and save it on a file by doing:
 ``` bash

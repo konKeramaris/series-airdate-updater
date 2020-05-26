@@ -7,12 +7,16 @@ import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-client = boto3.client('ses')
-series      = os.environ['SERIES_LIST'].split(',')
-ids         = os.environ['IDS_LIST'].split(',')
-SRC_EMAIL   = os.environ['SRC_EMAIL']
-DST_EMAIL   = os.environ['SRC_EMAIL']
-BASE_URL    = os.environ['BASE_URL']
+client              = boto3.client('ses')
+SERIES_NAMES_SSM    = os.environ['NAMES_SSM_NAME']
+SERIES_IDS_SSM      = os.environ['IDS_SSM_NAME']
+SRC_EMAIL           = os.environ['SRC_EMAIL']
+DST_EMAIL           = os.environ['SRC_EMAIL']
+BASE_URL            = os.environ['BASE_URL']
+
+ssmclient   = boto3.client('ssm')
+series      = ssmclient.get_parameter(Name=SERIES_NAMES_SSM)['Parameter']['Value'].split(',')
+ids         = ssmclient.get_parameter(Name=SERIES_IDS_SSM)['Parameter']['Value'].split(',')
 
 CURRENT_DATE = str(datetime.now().date())
 EMAIL_SUBJECT = 'Your Weekly Series Airtime Updater'

@@ -21,12 +21,16 @@ The Solution sends you an email with information similar to the following table:
 * AWS Account
 * Install and configure `aws-cli` and `sam-cli`
 * Working `python3.7` environment
-* Create S3 Bucket to store the build artifacts
 * Set up email on Amazon SES (Cannot be done via CloudFormation)
   * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
 
-# How to deploy (SAM)
+# How to deploy
+### Deploy initial Infrastucture as Code
+``` bash
+aws cloudformation deploy --template-file init-cloudformation.yaml --stack-name series-airdate-updater-init --parameter-overrides BucketName=<s3-bucket-name>
+```
+
 ### Install Dependencies
 ``` bash
 sam build
@@ -45,22 +49,19 @@ First install the necessary requirements for the `update-series-list.py` script 
 pip3 install -r update-series-list/requirements.txt
 ```
 
-Then, you can update the Lambda Environment variables by providing the appropriate input parameters.
+Then, you can update the SSM Parameters by providing the appropriate input parameters.
 ``` bash
 python3 update-series-list/update-series-list.py --lambdaname <function-name> --filename <txt-file-name>
 ```
-where `<function-name>` is the name of the Lambda function you have previously created and `<txt-file-name>` is a text file that has your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the Lambda Environment variables with the appropriate values. You can run again this script if you want to add/remove more series.
+where `<function-name>` is the name of the Lambda function you have previously created and `<txt-file-name>` is a text file that has your series titles (one per line). This script will read the list of TV series from `<txt-file-name>`  retrieve their ids and then update the SSM Parameters with the appropriate values. You can run again this script if you want to add/remove more series.
 
 You can also retrieve the current Lambda series list and save it on a file by doing:
 ``` bash
 python3 update-series-list/update-series-list.py --getserieslist --filename <txt-file-name>
 ```
 
-**Note:** When redeploying, depending on the changes of the Lambda function in AWS, you might need to run again `update-series-list/update-series-list.py` to set the series list in the Lambda Environment Variables.
-
 # Todo List
-* create cloudformation-init.yaml to create SSM Parameter Store and S3 bucket
-* Move series list from lambda Environment Variable to SSM Parameter
+* Update architecture with SSM
 * Verify CloudWatch events
 * Verify free-tier
 * Investigate Integration with Calendar

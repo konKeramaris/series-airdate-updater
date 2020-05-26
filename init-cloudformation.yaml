@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Provide the name of the project
+    Default: series-airdate-updater
+  
+  BucketName:
+    Type: String
+    Description: Provide the name of the bucket to store the artifacts
+
+Resources:
+  SeriesNamesSSMParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Sub ${ProjectName}-name-list
+      Description: Comma separated list of TV series titles
+      Tier: Standard
+      Type: StringList
+      Value: To be filled later
+      Tags: 
+        Project: !Ref ProjectName
+
+  SeriesIDsSSMParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Sub ${ProjectName}-ids-list
+      Description: Comma separated list of TV series ids
+      Tier: Standard
+      Type: StringList
+      Value: To be filled later
+      Tags: 
+        Project: !Ref ProjectName
+
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Ref BucketName
+      LifecycleConfiguration: 
+        Rules:
+          - ExpirationInDays: 7
+            Status: Enabled
+      Tags: 
+        - Key: Project
+          Value: !Ref ProjectName
+

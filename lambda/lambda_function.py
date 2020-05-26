@@ -3,6 +3,9 @@ import os
 from requests import get
 from tabulate import tabulate
 from datetime import datetime
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 client = boto3.client('ses')
 series      = os.environ['SERIES_LIST'].split(',')
@@ -30,6 +33,18 @@ def sendSESEmail(data):
                                     })
     return response['ResponseMetadata']['HTTPStatusCode']
 
+def findLatestPreviousEpisode(response):
+    # Find the latest airdate that is not empty and previous that the current day
+    latestPreviousPointer = -1
+    while (response[latestPreviousPointer]['airdate'] > CURRENT_DATE) or (response[latestPreviousPointer]['airdate'] == ''): 
+        latestPreviousPointer -=1
+    logger.info('pointer %s' %latestPreviousPointer)
+
+    # response[latestPreviousPointer] is the previous episode
+    # response[latestPreviousPointer+1] is the next episode (if it exists)
+    # if latestPreviousPointer is -1 then it means that there is no data for any future episodes
+    return latestPreviousPointer
+
 def getDatesFromEpisodeList(data, index):
     if index == 0 or data[index]['airdate']=='':
         return 'N/A'
@@ -44,16 +59,18 @@ def getEpisodesFromEpisodeList(data, index):
 
 nextDates = []; nextEp = []; prevDates = []; prevEp = []
 for id in ids:
+    logger.info('id: %s' %id)
+
+    # Return a sorted json with all the episodes of the tv series
     response = get(BASE_URL+'/shows/'+id+'/episodes').json()
-    pointer = -1
-    # Find the latest airdate that is not empty and previous that the current day
-    while (response[pointer]['airdate'] > CURRENT_DATE) or (response[pointer]['airdate'] == ''): pointer -=1
-    # response[pointer] is the previous episode
-    # response[pointer+1] is the next episode (if it exists)
-    prevEp.append(getEpisodesFromEpisodeList(response, pointer))
-    nextEp.append(getEpisodesFromEpisodeList(response, pointer+1))
-    prevDates.append(getDatesFromEpisodeList(response, pointer))
-    nextDates.append(getDatesFromEpisodeList(response, pointer+1))
+    logger.info('%s' %response)
+
+    latestPreviousPointer = findLatestPreviousEpisode(response)
+
+    prevEp.append(getEpisodesFromEpisodeList(response, latestPreviousPointer))
+    nextEp.append(getEpisodesFromEpisodeList(response, latestPreviousPointer+1))
+    prevDates.append(getDatesFromEpisodeList(response, latestPreviousPointer))
+    nextDates.append(getDatesFromEpisodeList(response, latestPreviousPointer+1))
 
 # Sort, Combine and Transpose List
 nextDates, series, nextEp, prevDates, prevEp = zip(*sorted(zip(nextDates, series, nextEp, prevDates, prevEp)))

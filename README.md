@@ -12,8 +12,7 @@ The Solution sends you an email with information similar to the following table:
 | Name           | Previous Ep. | Airtime    | Next Ep. | Airtime    |
 | -------------- | ------------ | ---------- | -------- | ---------- |
 | 13 Reasons Why | s3e13        | 2019-08-23 | s4e1     | 2020-06-05 |
-| Hanna          | s2e3         | 2020-07-03 | s2e4     | 2020-07-03 |
-| Yellowstone    | s3e2         | 2020-06-28 | s3e3     | 2020-07-05 |
+| The Boys       | s1e8         | 2019-07-26 | s2e1     | 2020-09-04 |
 | Atlanta        | s2e11        | 2018-05-10 | No Data  | No Data    |
 | Westworld      | s3e8         | 2020-05-03 | No Data  | No Data    |
 
@@ -61,9 +60,6 @@ python3 update-series-list/update-series-list.py --getserieslist --filename <txt
 ```
 
 # Todo List
-* Update architecture with SSM
-* Verify CloudWatch events
-* Verify free-tier
 * Investigate Integration with Calendar
 
 # License

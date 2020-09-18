@@ -4,6 +4,8 @@ from requests import get
 from tabulate import tabulate
 from datetime import datetime
 import logging
+
+#TODO change latestPrevious to latestAired
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -37,17 +39,17 @@ def sendSESEmail(data):
                                     })
     return response['ResponseMetadata']['HTTPStatusCode']
 
-def findLatestPreviousEpisode(response):
+def findlatestAiredEpisode(response):
     # Find the latest airdate that is not empty and previous that the current day
-    latestPreviousPointer = -1
-    while (response[latestPreviousPointer]['airdate'] > CURRENT_DATE) or (response[latestPreviousPointer]['airdate'] == ''): 
-        latestPreviousPointer -=1
-    logger.info('pointer %s' %latestPreviousPointer)
+    latestAiredPointer = -1
+    while (response[latestAiredPointer]['airdate'] > CURRENT_DATE) or (response[latestAiredPointer]['airdate'] == ''): 
+        latestAiredPointer -=1
+    logger.info('pointer %s' %latestAiredPointer)
 
-    # response[latestPreviousPointer] is the previous episode
-    # response[latestPreviousPointer+1] is the next episode (if it exists)
-    # if latestPreviousPointer is -1 then it means that there is no data for any future episodes
-    return latestPreviousPointer
+    # response[latestAiredPointer] is the last aired episode
+    # response[latestAiredPointer+1] is the next episode (if it exists)
+    # if latestAiredPointer is -1 then it means that there is no data for any future episodes
+    return latestAiredPointer
 
 def getDatesFromEpisodeList(data, index):
     if index == 0 or data[index]['airdate']=='':
@@ -69,12 +71,12 @@ for id in ids:
     response = get(BASE_URL+'/shows/'+id+'/episodes').json()
     logger.info('%s' %response)
 
-    latestPreviousPointer = findLatestPreviousEpisode(response)
+    latestAiredPointer = findlatestAiredEpisode(response)
 
-    prevEp.append(getEpisodesFromEpisodeList(response, latestPreviousPointer))
-    nextEp.append(getEpisodesFromEpisodeList(response, latestPreviousPointer+1))
-    prevDates.append(getDatesFromEpisodeList(response, latestPreviousPointer))
-    nextDates.append(getDatesFromEpisodeList(response, latestPreviousPointer+1))
+    prevEp.append(getEpisodesFromEpisodeList(response, latestAiredPointer))
+    nextEp.append(getEpisodesFromEpisodeList(response, latestAiredPointer+1))
+    prevDates.append(getDatesFromEpisodeList(response, latestAiredPointer))
+    nextDates.append(getDatesFromEpisodeList(response, latestAiredPointer+1))
 
 # Sort, Combine and Transpose List
 nextDates, series, nextEp, prevDates, prevEp = zip(*sorted(zip(nextDates, series, nextEp, prevDates, prevEp)))

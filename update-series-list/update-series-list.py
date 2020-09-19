@@ -9,7 +9,7 @@ def parse_args():
     parser = ArgumentParser(description='Update Lambda Environment Variables')
     parser.add_argument('-p', '--project-name', type=str,
                         help='Provide the The project name')
-    parser.add_argument('-s', '--stage', type=str,
+    parser.add_argument('-e', '--environment', type=str,
                         help='Provide the environment stage')
     parser.add_argument('-f', '--filename', type=str, default='myseries.txt',
                         help='Provide the filename of where the series names are stored')
@@ -40,8 +40,8 @@ if __name__ == "__main__":
     args = parse_args()
     print(vars(args))
 
-    seriesNamesParameter = args.project_name + '-' + args.stage + '-name-list'
-    seriesIdsParameter = args.project_name + '-' + args.stage + '-ids-list'
+    seriesNamesParameter = args.project_name + '-' + args.environment + '-name-list'
+    seriesIdsParameter = args.project_name + '-' + args.environment + '-ids-list'
     
     if args.getserieslist:
         print ('Retrieving series list...') 

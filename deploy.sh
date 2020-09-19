@@ -49,5 +49,5 @@ else
   sam build 
   sam deploy --stack-name $SERIES_AIRDATE_UPDATER_LAMBDA_STACK_NAME --s3-bucket $S3_BUCKET_NAME --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides SrcEmail=$SRC_EMAIL DstEmail=$DST_EMAIL ProjectName=$PROJECT_NAME Environment=$ENVIRONMENT NotificationLambdaArn=$NOTIFICATION_LAMBDA_ARN
 
-  python ../update-series-list/update-series-list.py -s dev -p $PROJECT_NAME
+  python ../update-series-list/update-series-list.py -e dev -p $PROJECT_NAME
 fi

@@ -1,9 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
+  Environment:
+    Type: String
+    Description: Provide the stage of the project
+
   ProjectName:
     Type: String
     Description: Provide the name of the project
-    Default: series-airdate-updater
   
   BucketName:
     Type: String
@@ -13,7 +16,7 @@ Resources:
   SeriesNamesSSMParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Sub ${ProjectName}-name-list
+      Name: !Sub ${ProjectName}-${Environment}-name-list
       Description: Comma separated list of TV series titles
       Tier: Standard
       Type: StringList
@@ -24,7 +27,7 @@ Resources:
   SeriesIDsSSMParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Sub ${ProjectName}-ids-list
+      Name: !Sub ${ProjectName}-${Environment}-ids-list
       Description: Comma separated list of TV series ids
       Tier: Standard
       Type: StringList

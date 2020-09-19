@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates a Lambda Function
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+      - W3002
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Enter the Resource Name of your resources  
+
+  Environment:
+    Type: String
+    Description: Provide the stage of the project
+
+  SrcEmail:
+    Type: String
+    Description: Provide the email that the updates will be send from
+  
+  DstEmail:
+    Type: String
+    Description: Provide the email that the updates will be send to 
+
+  TimeoutSec:
+    Type: Number
+    Description: Number of seconds until your lambda times out
+    Default: 30
+
+  MemorySize:
+    Type: Number
+    Description: Memory Size in MB (Must be a multiple of 64 MB)
+    MinValue: 128
+    MaxValue: 3008
+    Default: 128
+
+Resources:
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-${Environment}-notification-function
+      Description: Template Lambda Function
+      Role: !GetAtt LambdaRole.Arn
+      Code: 'package/'
+      Runtime: python3.8
+      Handler: lambda-function.lambda_handler
+      Timeout: !Ref TimeoutSec
+      MemorySize: !Ref MemorySize
+      Environment:
+        Variables: 
+          SRC_EMAIL : !Ref SrcEmail
+          DST_EMAIL : !Ref DstEmail
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${Environment}-notification-role
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/CloudWatchEventsFullAccess
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-${Environment}-notification-lambda-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                Resource: '*'        
+
+  EventsPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt Lambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-${Environment}*
+
+Outputs:
+  LambdaArn:
+    Description: The Arn of the Notification Lambda
+    Value: !GetAtt Lambda.Arn
+
+
+

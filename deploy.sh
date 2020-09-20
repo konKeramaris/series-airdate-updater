@@ -23,6 +23,14 @@ if [ "$REMOVE" = true ] ; then
   aws cloudformation delete-stack --stack-name $INIT_STACK_NAME
   aws cloudformation delete-stack --stack-name $SERIES_AIRDATE_UPDATER_LAMBDA_STACK_NAME
   aws cloudformation delete-stack --stack-name $NOTIFICATION_LAMBDA_STACK_NAME
+  
+  echo 'Waiting until Stacks have finished deleting'
+  aws cloudformation wait stack-delete-complete --stack-name $INIT_STACK_NAME
+  aws cloudformation wait stack-delete-complete --stack-name $SERIES_AIRDATE_UPDATER_LAMBDA_STACK_NAME
+  aws cloudformation wait stack-delete-complete --stack-name $NOTIFICATION_LAMBDA_STACK_NAME
+
+  echo 'Removing excess Log Groups and Events Rules'
+  python3 bin/remove-excess-resources.py -e $ENVIRONMENT -p $PROJECT_NAME
 else
   echo 'Creating Initial Cloudformation'    
   aws cloudformation deploy --template-file init-cloudformation.yaml --stack-name $INIT_STACK_NAME --parameter-overrides ProjectName=$PROJECT_NAME Environment=$ENVIRONMENT BucketName=$S3_BUCKET_NAME --no-fail-on-empty-changeset
@@ -49,5 +57,10 @@ else
   sam build 
   sam deploy --stack-name $SERIES_AIRDATE_UPDATER_LAMBDA_STACK_NAME --s3-bucket $S3_BUCKET_NAME --region eu-west-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides SrcEmail=$SRC_EMAIL DstEmail=$DST_EMAIL ProjectName=$PROJECT_NAME Environment=$ENVIRONMENT NotificationLambdaArn=$NOTIFICATION_LAMBDA_ARN
 
-  python ../update-series-list/update-series-list.py -e dev -p $PROJECT_NAME
+  echo 'Updating Series List SSM Parameter'
+  python3 ../update-series-list/update-series-list.py -e $ENVIRONMENT -p $PROJECT_NAME
+  
+  echo 'Setting up the correct cloudwatch log retention policy'
+  python3 ../bin/set-log-retention-policy.py -e $ENVIRONMENT -p $PROJECT_NAME
+
 fi

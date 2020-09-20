@@ -40,11 +40,11 @@ To deploy the Infrastructure you can use the `deploy.sh` shell script and provid
 
 | Name | Description                                                  |
 | ---- | ------------------------------------------------------------ |
-| `-p` | "Project Name": A Name String (Project Name) that all your resources will receive (e.g. my-series-update) |
-| `-e` | "Environment": The Environment that you will deploy to (e.g. prod) |
-| `-s` | "Src Email": The source email address (e.g. src@example.com). Needs to be already configured on SES. |
-| `-d` | "Dst Email": The destination email address (e.g. dst@example.com). Needs to be already configured on SES. |
-| `-r` | "Dst Email": Add `-r` only when you want to completely remove all the infrastructure |
+| `-p` | Project Name: A Name String (Project Name) that all your resources will receive (e.g. my-series-update) |
+| `-e` | Environment: The Environment that you will deploy to (e.g. prod) |
+| `-s` | Src Email: The source email address (e.g. src@example.com). Needs to be already configured on SES. |
+| `-d` | Dst Email: The destination email address (e.g. dst@example.com). Needs to be already configured on SES. |
+| `-r` | Remove: Add `-r` only when you want to completely remove all the infrastructure |
 
 The command to deploy will look like:
 

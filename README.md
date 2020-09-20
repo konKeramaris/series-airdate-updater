@@ -1,11 +1,21 @@
 # Series Airdate Updater
 
-This Solution utilizes the open TVmaze API to provide weekly email updates on the air-dates of your ongoing TV series. The solution operates 100% within the free-tier of AWS and will lead to no extra costs *(to be confirmed)*.
+This Solution utilizes the open  [TVmaze](https://www.tvmaze.com/) API to provide weekly email updates and notifications on the air-dates of your ongoing TV series. It operates 100% within the free-tier of AWS and will lead to no extra costs.
 
 # Architecture
-The Solution is based around the AWS Lambda functions that invokes the API and retrieves the latest information about the series air-dates. The function then uses the Amazon SES service to send an update email. CloudWatch Events is used to schedule the triggering of the Lambda function. Lastly the update of the list of series is handled by a python script located in `update-series-list/`.
+The Solution is based around 2 AWS Lambda functions:
 
-![architecture](imgs/architecture.png)
+**Weekly Updater Function**
+
+This Function is triggered on a weekly bases by an Events Rule., it invokes the TVmaze API and retrieves the latest information about the series air-dates. The function then uses the Amazon SES service to send an update email. The update of the list of series is handled by a python script located in `update-series-list/`. When this function Identifies a new announced episode it will create an events rule on the day of the aired episode with the correct information to trigger the Notification Lambda
+
+**Notification Function**
+
+This Function is triggered on the day of a new aired episode and sends an SES notification to the user. 
+
+
+
+![architecture](imgs/architecture.svg)
 
 The Solution sends you an email with information similar to the following table:
 
@@ -13,37 +23,47 @@ The Solution sends you an email with information similar to the following table:
 | -------------- | ------------ | ---------- | -------- | ---------- |
 | 13 Reasons Why | s3e13        | 2019-08-23 | s4e1     | 2020-06-05 |
 | The Boys       | s1e8         | 2019-07-26 | s2e1     | 2020-09-04 |
-| Atlanta        | s2e11        | 2018-05-10 | No Data  | No Data    |
-| Westworld      | s3e8         | 2020-05-03 | No Data  | No Data    |
+| Atlanta        | s2e11        | 2018-05-10 | N/A      | N/A        |
+| Westworld      | s3e8         | 2020-05-03 | N/A      | N/A        |
 
 # Prerequisites
 * AWS Account
 * Install and configure `aws-cli` and `sam-cli`
-* Working `python3.7` environment
+* Working `python3.7` environment (required for `sam-cli`)
 * Set up email on Amazon SES (Cannot be done via CloudFormation)
   * [Amazon SES Quick Start](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/quick-start.html)
   * [Setting up Email with Amazon SES](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/send-email-set-up.html)
+* Create a `myseries.txt` file in the `update-series-list/` directory and add your TV Series (one Series per line) 
 
 # How to deploy
-### Deploy initial Infrastucture as Code
-``` bash
-aws cloudformation deploy --template-file init-cloudformation.yaml --stack-name series-airdate-updater-init --parameter-overrides BucketName=<s3-bucket-name>
+To deploy the Infrastructure you can use the `deploy.sh` shell script and provide the following arguments:
+
+| Name | Description                                                  |
+| ---- | ------------------------------------------------------------ |
+| `-p` | "Project Name": A Name String (Project Name) that all your resources will receive (e.g. my-series-update) |
+| `-e` | "Environment": The Environment that you will deploy to (e.g. prod) |
+| `-s` | "Src Email": The source email address (e.g. src@example.com). Needs to be already configured on SES. |
+| `-d` | "Dst Email": The destination email address (e.g. dst@example.com). Needs to be already configured on SES. |
+| `-r` | "Dst Email": Add `-r` only when you want to completely remove all the infrastructure |
+
+The command to deploy will look like:
+
+```bash
+./deploy.sh -p "my-series-update" -e "prod" -s "src@example.com" -d "dst@example.com" 
 ```
 
-### Install Dependencies
-``` bash
-sam build
-```
+To completely remove all the infrastructure you can do:
 
-### Deploy the Infrastructure & Code
-``` bash
-sam deploy --stack-name series-airdate-updater --s3-bucket <s3-bucket-name> --region <aws-region> --parameter-overrides Email=<email@example.com> --capabilities CAPABILITY_NAMED_IAM
+```bash
+./deploy.sh -p "my-series-update" -e "prod" -s "src@example.com" -d "dst@example.com" -r
 ```
-where: `<s3-bucket-name>` is the bucket you have previously created, `<aws-region>` is the region of AWS that you are deploying to (eg. eu-west-1) and `<email@example.com>` is the email that you have set up on SES
 
 
 ### Update Series List
-First install the necessary requirements for the `update-series-list.py` script by doing:
+You can interact (update/retrieve) with the SSM Parameter of your TV Series list by using the  `update-series-list.py`  script.
+
+First install the necessary requirements:
+
 ``` bash
 pip3 install -r update-series-list/requirements.txt
 ```
@@ -59,8 +79,6 @@ You can also retrieve the current Lambda series list and save it on a file by do
 python3 update-series-list/update-series-list.py --getserieslist --filename <txt-file-name>
 ```
 
-# Todo List
-* Investigate Integration with Calendar
 
 # License
 Licensed under the Apache License, Version 2.0 ([LICENSE](LICENSE)

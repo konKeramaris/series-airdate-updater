@@ -3,7 +3,7 @@ import boto3
 import os
 import logging
 
-EMAIL_SUBJECT = 'New Episode Available today'
+EMAIL_SUBJECT = 'New Episode Available Today'
 SRC_EMAIL     = os.environ['SRC_EMAIL']
 DST_EMAIL     = os.environ['DST_EMAIL']
 client        = boto3.client('ses')
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     logger.info('%s' %event)
 
     # Send Notification Email
-    data = 'New episode for '+ event['Name'] + ', episode: '+ event['Episode']
+    data = 'New episode for '+ event['Name'] + ', Episode: '+ event['Episode']
     response = sendSESEmail(data)
     logger.info('SES Response: %s' %response)
 

@@ -17,7 +17,7 @@ export NOTIFICATION_LAMBDA_STACK_NAME=$PROJECT_NAME-$ENVIRONMENT-notification-la
 export SERIES_AIRDATE_UPDATER_LAMBDA_STACK_NAME=$PROJECT_NAME-$ENVIRONMENT-lambda
 
 
-if [ "$REMOVE" = true ] ; then
+if [ "$REMOVE" == true ] ; then
   echo 'Removing Cloudformation'
   aws s3 rm s3://$S3_BUCKET_NAME/ --recursive
   aws cloudformation delete-stack --stack-name $INIT_STACK_NAME
@@ -62,5 +62,4 @@ else
   
   echo 'Setting up the correct cloudwatch log retention policy'
   python3 ../bin/set-log-retention-policy.py -e $ENVIRONMENT -p $PROJECT_NAME
-
 fi

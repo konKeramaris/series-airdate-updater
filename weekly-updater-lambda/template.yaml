@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Provide the name of the project
+  
+  Environment:
+    Type: String
+    Description: Provide the stage of the project
+
+  NotificationLambdaArn:
+    Type: String
+    Description: Provide the Arn of the Notification Lambda
+
+  SrcEmail:
+    Type: String
+    Description: Provide the email that the updates will be send from
+  
+  DstEmail:
+    Type: String
+    Description: Provide the email that the updates will be send to
+
+Conditions:
+  isProd: !Equals [!Ref Environment, prod]
+
+Resources:
+  AirdateLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Description: Lambda Function to provide updates on the series upcoming airdates
+      Environment:
+        Variables: 
+          BASE_URL : http://api.tvmaze.com
+          SRC_EMAIL : !Ref SrcEmail
+          DST_EMAIL : !Ref DstEmail
+          NAMES_SSM_NAME : !Sub ${ProjectName}-${Environment}-name-list
+          IDS_SSM_NAME : !Sub ${ProjectName}-${Environment}-ids-list
+          NOTIFICATION_LAMBDA_ARN: !Ref NotificationLambdaArn
+          ENVIRONMENT: !Ref Environment
+          PROJECT_NAME: !Ref ProjectName
+          CUSTOM_CRON_JOB: ''
+      FunctionName: !Sub ${ProjectName}-${Environment}-function
+      Handler: lambda_function.lambda_handler
+      MemorySize: 128
+      Policies:
+        - CloudWatchEventsFullAccess
+        - Version: '2012-10-17' 
+          Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ssm:GetParameter
+              Resource: '*'
+      Runtime: python3.7
+      Timeout: 3
+
+  ScheduledRule: 
+    Type: AWS::Events::Rule
+    Condition: isProd
+    Properties: 
+      Name: !Sub ${ProjectName}-${Environment}-weekly
+      Description: Weekly Lambda Trigger
+      ScheduleExpression: cron(0 10 ? * FRI *)
+      State: ENABLED
+      Targets: 
+        - 
+          Arn: !GetAtt AirdateLambdaFunction.Arn
+          Id: !Sub ${ProjectName}-${Environment}-target
+  
+  EventsPermission:
+    Type: AWS::Lambda::Permission
+    Condition: isProd
+    Properties:
+      FunctionName: !GetAtt AirdateLambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-${Environment}*

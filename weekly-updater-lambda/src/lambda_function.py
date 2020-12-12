@@ -141,4 +141,4 @@ def lambda_handler(event, context):
     # Create Notification Event Rule for the upcoming episodes
     for i in range(0,len(nextDates)):
         if nextDates[i]!='N/A':
-            setupNotification(series[i],nextEp[i],nextDates[i])
+            setupNotification(seriesNamesList[i],nextEp[i],nextDates[i])

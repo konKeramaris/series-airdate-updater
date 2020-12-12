@@ -10,8 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 client                  = boto3.client('ses')
-SERIES_NAMES_SSM        = os.environ['NAMES_SSM_NAME']
-SERIES_IDS_SSM          = os.environ['IDS_SSM_NAME']
+SERIES_SSM              = os.environ['SERIES_SSM']
 SRC_EMAIL               = os.environ['SRC_EMAIL']
 DST_EMAIL               = os.environ['DST_EMAIL']
 BASE_URL                = os.environ['BASE_URL']
@@ -23,8 +22,7 @@ CUSTOM_CRON_JOB         = os.environ['CUSTOM_CRON_JOB']
 
 ssmclient   = boto3.client('ssm')
 eventClient = boto3.client('events')
-series      = ssmclient.get_parameter(Name=SERIES_NAMES_SSM)['Parameter']['Value'].split(',')
-ids         = ssmclient.get_parameter(Name=SERIES_IDS_SSM)['Parameter']['Value'].split(',')
+series      = json.loads(ssmclient.get_parameter(Name=SERIES_SSM)['Parameter']['Value'])
 
 CURRENT_DATE = str(datetime.now().date())
 EMAIL_SUBJECT = 'Your Weekly Series Airdate Updater'
@@ -114,7 +112,8 @@ nextEp    = []
 prevDates = []
 prevEp    = []
 # Get Latest information for all the series in the List
-for id in ids:
+for s in series['SeriesList']:
+    id=s['SeriesID']    
     logger.info('id: %s' %id)
     # Return a sorted json with all the episodes of the tv series
     response = get(BASE_URL+'/shows/'+id+'/episodes').json()
@@ -127,9 +126,11 @@ for id in ids:
     prevDates.append(getDatesFromEpisodeList(response, latestAiredPointer))
     nextDates.append(getDatesFromEpisodeList(response, latestAiredPointer+1))
 
+seriesNamesList =[s['SeriesName'] for s in series['SeriesList']] 
+
 # Sort, Combine and Transpose List
-nextDates, series, nextEp, prevDates, prevEp = zip(*sorted(zip(nextDates, series, nextEp, prevDates, prevEp)))
-transposedList = list(map(list, zip(*[series, prevEp, prevDates, nextEp, nextDates])))
+nextDates, seriesNamesList, nextEp, prevDates, prevEp = zip(*sorted(zip(nextDates, seriesNamesList, nextEp, prevDates, prevEp)))
+transposedList = list(map(list, zip(*[seriesNamesList, prevEp, prevDates, nextEp, nextDates])))
 
 def lambda_handler(event, context):
     data = tabulate(transposedList, headers=['Name', 'Prev. Ep.','Airtime','Next Ep.','Airtime'], 

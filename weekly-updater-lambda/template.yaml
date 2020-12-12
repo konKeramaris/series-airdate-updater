@@ -35,8 +35,7 @@ Resources:
           BASE_URL : http://api.tvmaze.com
           SRC_EMAIL : !Ref SrcEmail
           DST_EMAIL : !Ref DstEmail
-          NAMES_SSM_NAME : !Sub ${ProjectName}-${Environment}-name-list
-          IDS_SSM_NAME : !Sub ${ProjectName}-${Environment}-ids-list
+          SERIES_SSM : !Sub ${ProjectName}-${Environment}-series-list
           NOTIFICATION_LAMBDA_ARN: !Ref NotificationLambdaArn
           ENVIRONMENT: !Ref Environment
           PROJECT_NAME: !Ref ProjectName

@@ -13,24 +13,13 @@ Parameters:
     Description: Provide the name of the bucket to store the artifacts
 
 Resources:
-  SeriesNamesSSMParameter:
+  SeriesSSMParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Sub ${ProjectName}-${Environment}-name-list
-      Description: Comma separated list of TV series titles
+      Name: !Sub ${ProjectName}-${Environment}-series-list
+      Description: Series Names and ids
       Tier: Standard
-      Type: StringList
-      Value: To be filled later
-      Tags: 
-        Project: !Ref ProjectName
-
-  SeriesIDsSSMParameter:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Name: !Sub ${ProjectName}-${Environment}-ids-list
-      Description: Comma separated list of TV series ids
-      Tier: Standard
-      Type: StringList
+      Type: String
       Value: To be filled later
       Tags: 
         Project: !Ref ProjectName
